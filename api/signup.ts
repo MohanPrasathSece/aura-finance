@@ -57,13 +57,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         outlineYourCase: "Signup Lead",
       });
     } catch (crmError) {
-      console.error("CRM Submission failed during signup, proceeding to signup anyway:", crmError);
-      // We proceed to signup so auth flow doesn't block the user, or we can choose to throw.
-      // The requirement says: "On successful signup, submit the data to the CRM. After successful CRM submission, continue with the Blob/Vercel signup flow."
-      // Since it says "After successful CRM submission", let's make sure it is sent, but if it fails we can return error to frontend, or continue.
-      // Usually, it's safer to fail if CRM fails, but we can let them sign up. Let's make it throw to strictly follow the requirement, or just log.
-      // "After successful CRM submission, continue..." implies it's sequential and dependent.
-      throw new Error(`CRM Submission failed: ${(crmError as Error).message}`);
+      const errMsg = (crmError as Error).message || "";
+      if (errMsg.toLowerCase().includes("already exist")) {
+        console.warn("CRM lead already exists, continuing with signup flow:", crmError);
+      } else {
+        console.error("CRM Submission failed during signup:", crmError);
+        throw new Error(`CRM Submission failed: ${errMsg}`);
+      }
     }
 
     // 2. Continue with Blob / Vercel Signup Flow
