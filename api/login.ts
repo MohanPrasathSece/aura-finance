@@ -6,21 +6,15 @@ async function parseJsonBody(req: IncomingMessage & { body?: any }): Promise<Rec
     if (req.body !== undefined && req.body !== null) {
       return typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     }
-  } catch (e) {
-    console.warn("[API Login] Pre-parsed body resolution failed, falling back:", e);
+  } catch {
+    // fall through to stream reading
   }
-
   return new Promise((resolve) => {
     let body = "";
-    req.on("data", (chunk) => {
-      body += chunk.toString();
-    });
+    req.on("data", (chunk) => { body += chunk.toString(); });
     req.on("end", () => {
-      try {
-        resolve(body ? JSON.parse(body) : {});
-      } catch (e) {
-        resolve({});
-      }
+      try { resolve(body ? JSON.parse(body) : {}); }
+      catch { resolve({}); }
     });
   });
 }
@@ -30,12 +24,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    res.statusCode = 200;
-    res.end();
-    return;
-  }
-
+  if (req.method === "OPTIONS") { res.statusCode = 200; res.end(); return; }
   if (req.method !== "POST") {
     res.statusCode = 405;
     res.setHeader("Content-Type", "application/json");
@@ -47,13 +36,21 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const body = await parseJsonBody(req);
     const { email } = body;
 
-    console.log(`[API Login Request] Received email: "${email}"`);
+    console.log(`[API Login Request] Email: "${email}"`);
 
-    if (!email) {
-      console.warn(`[API Login Warning] Login attempt rejected: Email is missing.`);
+    if (!email || !email.trim()) {
+      console.warn("[API Login Warning] Email is required.");
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "Email is required" }));
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ error: "Please enter a valid email address" }));
       return;
     }
 
@@ -61,19 +58,20 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const user = users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
 
     if (!user) {
-      console.warn(`[API Login Warning] User not found for email: "${email}"`);
+      console.warn(`[API Login Warning] No account found for: "${email}"`);
       res.statusCode = 404;
       res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ error: "User not found. Please sign up first." }));
+      res.end(JSON.stringify({ error: "No account found with this email. Please sign up first." }));
       return;
     }
 
-    console.log(`[API Login Success] User logged in successfully: Name: "${user.name}", Email: "${user.email}"`);
+    console.log(`[API Login Success] Logged in: "${user.email}"`);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ success: true, user }));
   } catch (error: unknown) {
-    console.error("[API Login Error] Critical failure during login:", error);
+    const err = error as Error;
+    console.error("[API Login Error] Critical failure:", err);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: "Internal server error" }));

@@ -7,21 +7,15 @@ async function parseJsonBody(req: IncomingMessage & { body?: any }): Promise<Rec
     if (req.body !== undefined && req.body !== null) {
       return typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     }
-  } catch (e) {
-    console.warn("[API Signup] Pre-parsed body resolution failed, falling back:", e);
+  } catch {
+    // fall through to stream reading
   }
-
   return new Promise((resolve) => {
     let body = "";
-    req.on("data", (chunk) => {
-      body += chunk.toString();
-    });
+    req.on("data", (chunk) => { body += chunk.toString(); });
     req.on("end", () => {
-      try {
-        resolve(body ? JSON.parse(body) : {});
-      } catch (e) {
-        resolve({});
-      }
+      try { resolve(body ? JSON.parse(body) : {}); }
+      catch { resolve({}); }
     });
   });
 }
@@ -31,12 +25,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    res.statusCode = 200;
-    res.end();
-    return;
-  }
-
+  if (req.method === "OPTIONS") { res.statusCode = 200; res.end(); return; }
   if (req.method !== "POST") {
     res.statusCode = 405;
     res.setHeader("Content-Type", "application/json");
@@ -44,72 +33,87 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     return;
   }
 
+  try {
     const body = await parseJsonBody(req);
-    const { name, email, phone, countryCode } = body;
+    const { name, email, countryCode } = body;
 
-    console.log(`[API Signup Request] Name: "${name}", Email: "${email}", Phone: "${phone}", CountryCode: "${countryCode || "CH"}"`);
+    console.log(`[API Signup Request] Name: "${name}", Email: "${email}", CountryCode: "${countryCode || "CH"}"`);
 
-    if (!name || !email || !phone) {
-      console.warn(`[API Signup Warning] Rejection: Name, email, or phone is missing.`);
+    // Validate required fields
+    if (!email || !email.trim()) {
+      console.warn("[API Signup Warning] Email is required.");
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ error: "Name, email, and phone are required" }));
+      res.end(JSON.stringify({ error: "Email is required" }));
       return;
     }
 
-    // 1. Submit to CRM first
-    console.log(`[API Signup] Submitting to CRM...`);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ error: "Please enter a valid email address" }));
+      return;
+    }
+
+    if (!name || !name.trim()) {
+      res.statusCode = 400;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ error: "Name is required" }));
+      return;
+    }
+
+    // Submit to CRM (non-blocking if lead already exists)
+    console.log("[API Signup] Submitting to CRM...");
     try {
       await submitToCRM({
-        name,
-        email,
-        phone,
+        name: name.trim(),
+        email: email.trim(),
+        phone: "",
         description: "Signup Lead",
         outlineYourCase: "Signup Lead",
         countryCode: countryCode || "CH",
       });
-      console.log(`[API Signup] CRM submission succeeded.`);
+      console.log("[API Signup] CRM submission succeeded.");
     } catch (crmError) {
       const errMsg = (crmError as Error).message || "";
       if (errMsg.toLowerCase().includes("already exist")) {
-        console.warn("[API Signup Warning] CRM lead already exists, continuing with signup flow:", crmError);
+        console.warn("[API Signup Warning] CRM lead already exists, continuing:", crmError);
       } else {
-        console.error("[API Signup Error] CRM Submission failed during signup:", crmError);
-        throw new Error(`CRM Submission failed: ${errMsg}`);
+        console.error("[API Signup Error] CRM Submission failed:", crmError);
+        // Don't block signup if CRM fails — just log
       }
     }
 
-    // 2. Continue with Blob / Vercel Signup Flow
-    console.log(`[API Signup] Fetching current user list...`);
+    // Register/update user in Blob DB
+    console.log("[API Signup] Fetching current user list...");
     const users = await getUsers();
-    const existingUserIndex = users.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
+    const existingIndex = users.findIndex((u) => u.email.toLowerCase() === email.trim().toLowerCase());
 
     const updatedUser: User = {
-      email: email.toLowerCase(),
-      name: name,
-      phone: phone,
-      createdAt:
-        existingUserIndex >= 0 ? users[existingUserIndex].createdAt : new Date().toISOString(),
+      email: email.trim().toLowerCase(),
+      name: name.trim(),
+      phone: "",
+      createdAt: existingIndex >= 0 ? users[existingIndex].createdAt : new Date().toISOString(),
     };
 
-    if (existingUserIndex >= 0) {
-      console.log(`[API Signup] User already exists. Updating details for: "${email}"`);
-      users[existingUserIndex] = updatedUser;
+    if (existingIndex >= 0) {
+      console.log(`[API Signup] User exists — updating: "${email}"`);
+      users[existingIndex] = updatedUser;
     } else {
-      console.log(`[API Signup] New user signup. Registering: "${email}"`);
+      console.log(`[API Signup] New user — registering: "${email}"`);
       users.push(updatedUser);
     }
 
-    console.log(`[API Signup] Saving updated user database...`);
     await saveUsers(users);
-    console.log(`[API Signup Success] Registration complete for: "${email}"`);
+    console.log(`[API Signup Success] Registered: "${email}"`);
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ success: true, user: updatedUser }));
   } catch (error: unknown) {
     const err = error as Error;
-    console.error("[API Signup Error] Critical failure during signup:", err);
+    console.error("[API Signup Error] Critical failure:", err);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: err.message || "Internal server error" }));

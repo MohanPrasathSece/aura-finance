@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import gsap from "gsap";
-import { COUNTRIES, validatePhoneNumber, formatFullPhoneNumber, getCountry } from "../utils/phoneValidation";
-import { CountrySelect } from "./CountrySelect";
 
 interface AuthModalsProps {
   isOpen: boolean;
@@ -23,8 +21,6 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
   // Form states
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState("CH");
 
   // UI states
   const [loading, setLoading] = useState(false);
@@ -35,7 +31,6 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
   const [validationErrors, setValidationErrors] = useState<{
     name?: string;
     email?: string;
-    phone?: string;
   }>({});
 
   const modalRef = useRef<HTMLDivElement | null>(null);
@@ -47,8 +42,6 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     setSuccess(null);
     setEmail("");
     setName("");
-    setPhone("");
-    setSelectedCountry("CH");
     setValidationErrors({});
   }, [initialView, isOpen]);
 
@@ -118,9 +111,6 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     return undefined;
   };
 
-  const validatePhone = (val: string, countryCode: string = selectedCountry) => {
-    return validatePhoneNumber(val, countryCode);
-  };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,33 +142,26 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     e.preventDefault();
     setError(null);
 
-    // Validate all fields
     const nameErr = validateName(name);
     const emailErr = validateEmail(email);
-    const phoneErr = validatePhone(phone, selectedCountry);
 
-    if (nameErr || emailErr || phoneErr) {
-      setValidationErrors({
-        name: nameErr,
-        email: emailErr,
-        phone: phoneErr,
-      });
+    if (nameErr || emailErr) {
+      setValidationErrors({ name: nameErr, email: emailErr });
       return;
     }
 
     setLoading(true);
-    const fullPhone = formatFullPhoneNumber(phone, selectedCountry);
-    const res = await signup(name, email, fullPhone, selectedCountry);
+    const res = await signup(name, email, "", "");
     setLoading(false);
 
     if (res.success) {
-      setSuccess("Registration successful!");
+      setSuccess("Account created! Welcome to Zyvora.");
       setTimeout(() => {
         handleClose();
         if (onSuccess) onSuccess();
-      }, 1000);
+      }, 1200);
     } else {
-      setError(res.error || "Signup failed");
+      setError(res.error || "Signup failed. Please try again.");
     }
   };
 
@@ -327,39 +310,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
                 )}
               </div>
 
-              <div>
-                <label className="mb-1 block text-xs uppercase tracking-widest text-white/50">
-                  Phone number
-                </label>
-                <div className="flex gap-2">
-                  <CountrySelect
-                    value={selectedCountry}
-                    onChange={(newCountry) => {
-                      setSelectedCountry(newCountry);
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        phone: validatePhone(phone, newCountry),
-                      }));
-                    }}
-                  />
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                      setValidationErrors((prev) => ({
-                        ...prev,
-                        phone: validatePhone(e.target.value, selectedCountry),
-                      }));
-                    }}
-                    placeholder={getCountry(selectedCountry).placeholder}
-                    className={`flex-1 rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white text-base`}
-                  />
-                </div>
-                {validationErrors.phone && (
-                  <p className="text-sm text-destructive mt-1">{validationErrors.phone}</p>
-                )}
-              </div>
+
 
               {error && (
                 <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive leading-relaxed">
