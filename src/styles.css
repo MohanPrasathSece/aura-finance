@@ -78,12 +78,12 @@
   --font-size-8xl: clamp(1.75rem, 3.5vw, 2.5rem);
 
   /* Standard letter spacing overrides */
-  --letter-spacing-tighter: 0em;
-  --letter-spacing-tight: 0em;
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.02em;
   --letter-spacing-normal: 0em;
-  --letter-spacing-wide: 0em;
-  --letter-spacing-wider: 0em;
-  --letter-spacing-widest: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
 }
 
 :root {
@@ -167,7 +167,7 @@
   h5,
   h6,
   .font-display {
-    letter-spacing: 0.02em !important;
+    letter-spacing: -0.02em;
   }
 }
 
