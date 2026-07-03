@@ -80,13 +80,10 @@ export default defineConfig({
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Allow local dev to resolve ../api-lib imports from within api/ files
-      "../api-lib": path.resolve(__dirname, "./api-lib"),
     },
   },
   ssr: {
-    // Ensure api-lib files are processed by Vite during SSR (not treated as external)
-    noExternal: ["../api-lib"],
+    // Exclude API files from client bundle and force them to run in Node
+    exclude: ["./api/**"],
   },
 });
-
