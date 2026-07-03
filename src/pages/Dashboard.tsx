@@ -119,135 +119,100 @@ export default function Dashboard() {
           </p>
         </ScrollSection>
 
-        {/* 2. CRYPTO TRADING BOTS SECTION */}
+        {/* 2. HOW WE GROW YOUR CAPITAL */}
         <ScrollSection>
-          <div className="grid lg:grid-cols-12 gap-12 items-start">
-            <div className="lg:col-span-5 text-left space-y-4">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-5 text-left space-y-6">
               <div className="inline-flex rounded-full glass px-3 py-1 text-xs text-[#00C6FF]">
-                01 · Automation
+                01 · Smart Staking
               </div>
               <h2 className="font-display text-3xl md:text-5xl font-black leading-tight text-white">
-                Crypto <span className="text-gradient">Trading Bots</span>
+                How We <span className="text-gradient">Grow Your Capital</span>
               </h2>
               <p className="text-white/60 leading-relaxed">
-                Maximize returns on autopilot. Deploy high-frequency algorithms and grid strategies designed to capture profits from short-term price movements 24/7.
+                We believe in simple, transparent wealth generation. Instead of speculative trading, Aether allocates your assets into verified node networks and liquidity pools that generate consistent returns.
               </p>
-              <div className="pt-4 h-48 rounded-2xl bg-white/5 border border-white/5 p-4 relative overflow-hidden">
-                <div className="absolute top-3 left-4 text-[10px] uppercase text-white/40 font-bold flex items-center gap-2">
-                  <Activity className="h-3.5 w-3.5 text-[#14F195] animate-pulse" /> Live Market Signal Feed
-                </div>
-                <div className="mt-4 h-36">
-                  <CandlestickChart />
-                </div>
+              <div className="space-y-4">
+                {[
+                  {
+                    t: "Automated Compounding",
+                    d: "Earnings are automatically reinvested daily to maximize compound interest."
+                  },
+                  {
+                    t: "Constant Optimization",
+                    d: "Funds are dynamically routed 24/7 to the safest high-yield options."
+                  },
+                  {
+                    t: "Zero Leverage Speculation",
+                    d: "We do not trade directional assets; your returns come from liquidity premiums."
+                  }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-4 items-start">
+                    <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00C6FF]/10 text-[#00C6FF] font-bold text-[10px]">
+                      ✓
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{item.t}</h4>
+                      <p className="text-xs text-white/50">{item.d}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="lg:col-span-7 space-y-6">
-              {[
-                {
-                  t: "Alpha Grid Bot",
-                  d: "Executes DCA & automatic grid sweeps within volatility channels. Configured for major pairs.",
-                  apy: "28.4% APY",
-                  state: "Active",
-                  color: "#14F195",
-                  details: "Grid Range: $68,500 - $72,500"
-                },
-                {
-                  t: "Arbitrage Scanner",
-                  d: "Constantly scans cross-venue rate mismatches between integrated institutional exchanges.",
-                  apy: "18.2% APY",
-                  state: "Idle",
-                  color: "#ffd063",
-                  details: "Bypasses Aether Custody clearing desk"
-                },
-                {
-                  t: "Neural Momentum Tracker",
-                  d: "Leverages machine learning sentiment filters and RSI indicators for trend scaling.",
-                  apy: "34.6% APY",
-                  state: "Active",
-                  color: "#14F195",
-                  details: "Max Drawdown Cap: 4.5%"
-                }
-              ].map((bot, i) => (
-                <div key={i} className="glass-strong gradient-border rounded-3xl p-6 text-left relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="space-y-2 max-w-md">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-2.5 w-2.5 rounded-full animate-pulse" style={{ backgroundColor: bot.color }} />
-                      <h3 className="font-display text-xl font-bold text-white">{bot.t}</h3>
-                      <span className="text-[10px] uppercase tracking-wider text-white/40">{bot.state}</span>
-                    </div>
-                    <p className="text-xs text-white/60 leading-relaxed">{bot.d}</p>
-                    <div className="text-[10px] text-white/40 font-mono">{bot.details}</div>
-                  </div>
-                  <div className="text-right flex md:flex-col items-baseline md:items-end justify-between md:justify-center border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
-                    <span className="text-xs text-white/50 md:mb-1">Target Yield</span>
-                    <span className="text-2xl font-black text-gradient">{bot.apy}</span>
-                  </div>
-                </div>
-              ))}
+            <div className="lg:col-span-7 w-full">
+              <CapitalGrowthSimulator />
             </div>
           </div>
         </ScrollSection>
 
-        {/* 3. HIGH YIELD PRODUCTS SECTION */}
+        {/* 3. WHY YOUR MONEY IS SAFE */}
         <ScrollSection>
           <div className="text-center space-y-4 mb-16">
             <div className="inline-flex rounded-full glass px-3 py-1 text-xs text-[#14F195]">
-              02 · Maximize Returns
+              02 · Risk Management
             </div>
             <h2 className="font-display text-3xl md:text-5xl font-black leading-tight text-white">
-              High-Yield <span className="text-gradient">Opportunities</span>
+              Why Your <span className="text-gradient">Money is Safe</span>
             </h2>
             <p className="text-white/60 max-w-xl mx-auto">
-              Access high-return yield pools and leverage vaults designed to accelerate your passive earnings while secured under insured custody.
+              Our absolute priority is the defense of your capital. We implement multiple automated and architectural layers to neutralize volatility.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                t: "Leveraged ETH Vault",
-                desc: "3x leveraged consensus node staking optimization strategy utilizing lending loops.",
-                apy: "42.8% APY",
-                risk: "Moderate Risk",
-                icon: <Zap className="h-6 w-6 text-[#00C6FF]" />,
-                detail: "Liquidation Buffer: 28%"
-              },
-              {
-                t: "USDC Market Maker Pool",
-                desc: "Delta-neutral automated market maker provision strategy exploiting liquidity premiums.",
-                apy: "24.5% APY",
-                risk: "Low Risk",
-                icon: <Layers className="h-6 w-6 text-[#6A5CFF]" />,
-                detail: "Zero directional exposure"
-              },
-              {
-                t: "Tokenized RWA Pool",
-                desc: "Stable off-chain yields backed fully by trade finance invoicing and corporate credit debt.",
-                apy: "19.8% APY",
-                risk: "Very Low Risk",
+                t: "Multi-Signature Vaults",
+                desc: "We route all deposits through multi-party computation (MPC) cold custody vaults. No single key or individual can access or withdraw your funds.",
                 icon: <Shield className="h-6 w-6 text-[#14F195]" />,
-                detail: "Quarterly liquidity windows"
+                badge: "Architectural Safeguard"
+              },
+              {
+                t: "Automated Loss Caps",
+                desc: "If system parameters trigger unexpected market adjustments, automated stop-locks instantly convert assets back to secured stablecoins.",
+                icon: <Cpu className="h-6 w-6 text-[#00C6FF]" />,
+                badge: "Algorithmic Protection"
+              },
+              {
+                t: "Delta-Neutral Strategies",
+                desc: "By maintaining balanced directional exposure, your yield is generated from trading volumes rather than the volatile prices of crypto tokens.",
+                icon: <Layers className="h-6 w-6 text-[#6A5CFF]" />,
+                badge: "Hedging Model"
               }
             ].map((prod, i) => (
-              <div key={i} className="glass-strong gradient-border rounded-3xl p-6 text-left flex flex-col justify-between h-full space-y-6">
+              <div key={i} className="glass-strong gradient-border rounded-3xl p-6 text-left flex flex-col justify-between h-full space-y-6 group hover:translate-y-[-4px] transition-all duration-300">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
+                    <div className="p-3 rounded-2xl bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
                       {prod.icon}
                     </div>
                     <span className="text-[10px] uppercase font-bold text-white/50 px-2.5 py-1 rounded-full bg-white/5 border border-white/5">
-                      {prod.risk}
+                      {prod.badge}
                     </span>
                   </div>
-                  <h3 className="font-display text-xl font-bold text-white">{prod.t}</h3>
+                  <h3 className="font-display text-xl font-bold text-white group-hover:text-[#00C6FF] transition-colors">{prod.t}</h3>
                   <p className="text-xs text-white/60 leading-relaxed">{prod.desc}</p>
-                </div>
-                <div className="border-t border-white/5 pt-4 flex items-center justify-between">
-                  <div className="text-[10px] text-white/40 font-mono">{prod.detail}</div>
-                  <div className="text-right">
-                    <div className="text-2xl font-black text-gradient">{prod.apy}</div>
-                  </div>
                 </div>
               </div>
             ))}
@@ -300,82 +265,84 @@ export default function Dashboard() {
   );
 }
 
-/* ---------------- CUSTOM CANDLESTICK SIMULATOR ---------------- */
-function CandlestickChart() {
-  const [candles, setCandles] = useState<{ o: number; h: number; l: number; c: number }[]>([]);
-  const w = 450,
-    h = 160;
+/* ---------------- CAPITAL GROWTH SIMULATOR ---------------- */
+function CapitalGrowthSimulator() {
+  const [amount, setAmount] = useState(10000);
+  const [years, setYears] = useState(3);
 
-  useEffect(() => {
-    // Generate initial candles
-    const list = [];
-    let cur = 71200;
-    for (let i = 0; i < 22; i++) {
-      const o = cur;
-      const c = cur + (Math.random() - 0.48) * 80;
-      const h = Math.max(o, c) + Math.random() * 30;
-      const l = Math.min(o, c) - Math.random() * 30;
-      list.push({ o, h, l, c });
-      cur = c;
-    }
-    setCandles(list);
+  const bankApy = 0.015; // 1.5%
+  const aetherApy = 0.22; // 22%
 
-    // Live ticker update
-    const interval = setInterval(() => {
-      setCandles((prev) => {
-        const next = [...prev];
-        next.shift();
-        const last = next[next.length - 1];
-        const o = last.c;
-        const c = last.c + (Math.random() - 0.48) * 90;
-        const h = Math.max(o, c) + Math.random() * 35;
-        const l = Math.min(o, c) - Math.random() * 35;
-        next.push({ o, h, l, c });
-        return next;
-      });
-    }, 1800);
+  const bankGrowth = amount * Math.pow(1 + bankApy, years);
+  const aetherGrowth = amount * Math.pow(1 + aetherApy, years);
 
-    return () => clearInterval(interval);
-  }, []);
-
-  if (candles.length === 0) return null;
-
-  const minVal = Math.min(...candles.map((c) => c.l));
-  const maxVal = Math.max(...candles.map((c) => c.h));
-  const valRange = maxVal - minVal;
-
-  const getX = (i: number) => i * (w / candles.length) + w / candles.length / 2;
-  const getY = (val: number) => h - ((val - minVal) / valRange) * h;
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full overflow-visible">
-      {candles.map((c, i) => {
-        const x = getX(i);
-        const yOpen = getY(c.o);
-        const yClose = getY(c.c);
-        const yHigh = getY(c.h);
-        const yLow = getY(c.l);
-        const isUp = c.c >= c.o;
-        const color = isUp ? "#14F195" : "#ff6b81";
-        const width = 10;
+    <div className="glass-strong gradient-border rounded-3xl p-6 md:p-8 space-y-6 text-left relative overflow-hidden">
+      <div className="space-y-4">
+        <h3 className="font-display text-xl font-bold text-white">Compound Growth Simulator</h3>
+        <p className="text-xs text-white/60">
+          Compare Aether's yield optimization to traditional banking options over time.
+        </p>
+      </div>
 
-        return (
-          <g key={i}>
-            {/* Wick */}
-            <line x1={x} y1={yHigh} x2={x} y2={yLow} stroke={color} strokeWidth="1.5" />
-            {/* Body */}
-            <rect
-              x={x - width / 2}
-              y={Math.min(yOpen, yClose)}
-              width={width}
-              height={Math.max(2, Math.abs(yOpen - yClose))}
-              fill={color}
-              rx="1.5"
-            />
-          </g>
-        );
-      })}
-    </svg>
+      <div className="space-y-6">
+        {/* Slider for Amount */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-white/60">Initial Deposit</span>
+            <span className="text-white font-bold">{formatter.format(amount)}</span>
+          </div>
+          <input
+            type="range"
+            min="5000"
+            max="250000"
+            step="5000"
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00C6FF]"
+          />
+        </div>
+
+        {/* Buttons for Years */}
+        <div className="space-y-2">
+          <div className="text-xs text-white/60">Duration</div>
+          <div className="grid grid-cols-5 gap-2">
+            {[1, 2, 3, 4, 5].map((y) => (
+              <button
+                key={y}
+                onClick={() => setYears(y)}
+                className={`py-2 rounded-xl text-xs font-semibold border transition ${
+                  years === y
+                    ? "bg-gradient-brand text-[#03040A] border-transparent"
+                    : "bg-white/5 text-white/70 border-white/10 hover:bg-white/10"
+                }`}
+              >
+                {y} {y === 1 ? "Yr" : "Yrs"}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Results block */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/5 pt-6">
+        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex flex-col justify-between">
+          <span className="text-[10px] uppercase font-bold text-white/40">Standard Bank Return (1.5% APY)</span>
+          <span className="text-xl font-bold text-white/80 mt-2">{formatter.format(bankGrowth)}</span>
+        </div>
+        <div className="p-4 rounded-2xl bg-[#00C6FF]/5 border border-[#00C6FF]/20 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-0 right-0 h-12 w-12 bg-[#00C6FF]/10 blur-xl rounded-full" />
+          <span className="text-[10px] uppercase font-bold text-[#00C6FF]">Aether Optimized Yield (22% APY)</span>
+          <span className="text-2xl font-black text-gradient mt-2">{formatter.format(aetherGrowth)}</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
