@@ -161,7 +161,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
         ref={modalRef}
         className="
           glass-strong noise relative z-10
-          w-full max-w-[92vw] sm:max-w-[460px]
+          w-full max-w-[96vw] sm:max-w-[500px]
           rounded-2xl sm:rounded-3xl
           border border-white/10
           shadow-[0_0_60px_rgba(0,198,255,0.18)]
