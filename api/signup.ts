@@ -36,11 +36,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     return;
   }
 
-  try {
     const body = await parseJsonBody(req);
-    const { name, email, phone } = body;
+    const { name, email, phone, countryCode } = body;
+
+    console.log(`[API Signup Request] Name: "${name}", Email: "${email}", Phone: "${phone}", CountryCode: "${countryCode || "CH"}"`);
 
     if (!name || !email || !phone) {
+      console.warn(`[API Signup Warning] Rejection: Name, email, or phone is missing.`);
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "Name, email, and phone are required" }));
@@ -48,6 +50,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
 
     // 1. Submit to CRM first
+    console.log(`[API Signup] Submitting to CRM...`);
     try {
       await submitToCRM({
         name,
@@ -55,45 +58,50 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         phone,
         description: "Signup Lead",
         outlineYourCase: "Signup Lead",
+        countryCode: countryCode || "CH",
       });
+      console.log(`[API Signup] CRM submission succeeded.`);
     } catch (crmError) {
       const errMsg = (crmError as Error).message || "";
       if (errMsg.toLowerCase().includes("already exist")) {
-        console.warn("CRM lead already exists, continuing with signup flow:", crmError);
+        console.warn("[API Signup Warning] CRM lead already exists, continuing with signup flow:", crmError);
       } else {
-        console.error("CRM Submission failed during signup:", crmError);
+        console.error("[API Signup Error] CRM Submission failed during signup:", crmError);
         throw new Error(`CRM Submission failed: ${errMsg}`);
       }
     }
 
     // 2. Continue with Blob / Vercel Signup Flow
+    console.log(`[API Signup] Fetching current user list...`);
     const users = await getUsers();
     const existingUserIndex = users.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
 
     const updatedUser: User = {
       email: email.toLowerCase(),
       name: name,
-      phone: phone, // Signup should store the updated phone number entered by the user
+      phone: phone,
       createdAt:
         existingUserIndex >= 0 ? users[existingUserIndex].createdAt : new Date().toISOString(),
     };
 
     if (existingUserIndex >= 0) {
-      // User exists, update details (only store the updated phone number entered by the user / updating details)
+      console.log(`[API Signup] User already exists. Updating details for: "${email}"`);
       users[existingUserIndex] = updatedUser;
     } else {
-      // New user
+      console.log(`[API Signup] New user signup. Registering: "${email}"`);
       users.push(updatedUser);
     }
 
+    console.log(`[API Signup] Saving updated user database...`);
     await saveUsers(users);
+    console.log(`[API Signup Success] Registration complete for: "${email}"`);
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ success: true, user: updatedUser }));
   } catch (error: unknown) {
     const err = error as Error;
-    console.error("Signup failed:", err);
+    console.error("[API Signup Error] Critical failure during signup:", err);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: err.message || "Internal server error" }));

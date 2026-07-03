@@ -39,7 +39,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const body = await parseJsonBody(req);
     const { email } = body;
 
+    console.log(`[API Login Request] Received email: "${email}"`);
+
     if (!email) {
+      console.warn(`[API Login Warning] Login attempt rejected: Email is missing.`);
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "Email is required" }));
@@ -50,17 +53,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const user = users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase());
 
     if (!user) {
+      console.warn(`[API Login Warning] User not found for email: "${email}"`);
       res.statusCode = 404;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "User not found. Please sign up first." }));
       return;
     }
 
+    console.log(`[API Login Success] User logged in successfully: Name: "${user.name}", Email: "${user.email}"`);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ success: true, user }));
   } catch (error: unknown) {
-    console.error("Login failed:", error);
+    console.error("[API Login Error] Critical failure during login:", error);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: "Internal server error" }));

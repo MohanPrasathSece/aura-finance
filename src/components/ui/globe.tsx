@@ -52,7 +52,7 @@ const Globe: React.FC<GlobeProps> = ({ className = "h-screen" }) => {
 
         {/* Globe */}
         <div
-          className="relative w-[350px] h-[350px] rounded-full overflow-hidden shadow-[0_0_35px_rgba(255,255,255,0.15),-7px_0_11px_#c3f4ff_inset,20px_3px_35px_#000_inset,-32px_-3px_48px_#c3f4ff99_inset,350px_0_60px_#00000066_inset,210px_0_50px_#000000aa_inset]"
+          className="relative w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] rounded-full overflow-hidden shadow-[0_0_35px_rgba(255,255,255,0.15),-7px_0_11px_#c3f4ff_inset,20px_3px_35px_#000_inset,-32px_-3px_48px_#c3f4ff99_inset,350px_0_60px_#00000066_inset,210px_0_50px_#000000aa_inset] transition-all duration-500"
           style={{
             backgroundImage: "url('https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/globe.jpeg')",
             backgroundSize: "cover",

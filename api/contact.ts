@@ -39,10 +39,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   try {
     const body = await parseJsonBody(req);
-    const { name, email, phone, message } = body;
+    const { name, email, phone, message, countryCode } = body;
+
+    console.log(`[API Contact Request] Name: "${name}", Email: "${email}", Phone: "${phone}", CountryCode: "${countryCode || "CH"}", Message: "${message || ""}"`);
 
     // Validate inputs
     if (!name || !email || !phone) {
+      console.warn(`[API Contact Warning] Rejection: Name, email, or phone is missing.`);
       res.statusCode = 400;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ error: "Name, email, and phone are required" }));
@@ -50,20 +53,23 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
 
     // Submit to CRM
+    console.log(`[API Contact] Submitting details to CRM...`);
     await submitToCRM({
       name,
       email,
       phone,
       description: message || "Website Contact Lead",
       outlineYourCase: message || "",
+      countryCode: countryCode || "CH",
     });
+    console.log(`[API Contact Success] CRM submission completed for: "${email}"`);
 
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ success: true, message: "Enquiry submitted successfully" }));
   } catch (error: unknown) {
     const err = error as Error;
-    console.error("Contact Form CRM submission failed:", err);
+    console.error("[API Contact Error] CRM submission failed:", err);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: "Internal server error", details: err.message }));

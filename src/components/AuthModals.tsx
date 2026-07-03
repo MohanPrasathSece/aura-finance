@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import gsap from "gsap";
+import { COUNTRIES, validatePhoneNumber, formatFullPhoneNumber, getCountry } from "../utils/phoneValidation";
+import { CountrySelect } from "./CountrySelect";
 
 interface AuthModalsProps {
   isOpen: boolean;
@@ -22,6 +24,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("CH");
 
   // UI states
   const [loading, setLoading] = useState(false);
@@ -45,6 +48,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     setEmail("");
     setName("");
     setPhone("");
+    setSelectedCountry("CH");
     setValidationErrors({});
   }, [initialView, isOpen]);
 
@@ -114,14 +118,8 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     return undefined;
   };
 
-  const validatePhone = (val: string) => {
-    const cleanPhone = val.replace(/\s+/g, "");
-    if (!cleanPhone) return "Please enter a phone number";
-    const phoneRegex = /^(\+41|0041|41|0)?[1-9]\d{8}$/;
-    if (!phoneRegex.test(cleanPhone)) {
-      return "Please enter a valid phone number (e.g. 0791234567)";
-    }
-    return undefined;
+  const validatePhone = (val: string, countryCode: string = selectedCountry) => {
+    return validatePhoneNumber(val, countryCode);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -157,7 +155,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     // Validate all fields
     const nameErr = validateName(name);
     const emailErr = validateEmail(email);
-    const phoneErr = validatePhone(phone);
+    const phoneErr = validatePhone(phone, selectedCountry);
 
     if (nameErr || emailErr || phoneErr) {
       setValidationErrors({
@@ -169,7 +167,8 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     }
 
     setLoading(true);
-    const res = await signup(name, email, phone);
+    const fullPhone = formatFullPhoneNumber(phone, selectedCountry);
+    const res = await signup(name, email, fullPhone, selectedCountry);
     setLoading(false);
 
     if (res.success) {
@@ -332,19 +331,31 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
                 <label className="mb-1 block text-xs uppercase tracking-widest text-white/50">
                   Phone number
                 </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => {
-                    setPhone(e.target.value);
-                    setValidationErrors((prev) => ({
-                      ...prev,
-                      phone: validatePhone(e.target.value),
-                    }));
-                  }}
-                  placeholder="079 123 45 67"
-                  className={`w-full rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white text-base`}
-                />
+                <div className="flex gap-2">
+                  <CountrySelect
+                    value={selectedCountry}
+                    onChange={(newCountry) => {
+                      setSelectedCountry(newCountry);
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        phone: validatePhone(phone, newCountry),
+                      }));
+                    }}
+                  />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      setValidationErrors((prev) => ({
+                        ...prev,
+                        phone: validatePhone(e.target.value, selectedCountry),
+                      }));
+                    }}
+                    placeholder={getCountry(selectedCountry).placeholder}
+                    className={`flex-1 rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white text-base`}
+                  />
+                </div>
                 {validationErrors.phone && (
                   <p className="text-sm text-destructive mt-1">{validationErrors.phone}</p>
                 )}

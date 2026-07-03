@@ -22,38 +22,40 @@ if (fs.existsSync(LOCAL_DB_PATH)) {
 }
 
 async function getBlobUrl(): Promise<string | null> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token || token === "undefined" || token === "null" || token.trim() === "") {
     return null;
   }
   try {
-    const { blobs } = await list();
+    const { blobs } = await list({ token });
     const userBlob = blobs.find((b) => b.pathname === "users.json");
     return userBlob ? userBlob.url : null;
   } catch (e) {
-    console.error("Vercel Blob list error", e);
+    console.error("Vercel Blob list error:", e);
     return null;
   }
 }
 
 export async function getUsers(): Promise<User[]> {
-  const blobUrl = await getBlobUrl();
-  if (!blobUrl) {
-    // Return local database fallback
-    return localUsersCache;
-  }
-
   try {
+    const blobUrl = await getBlobUrl();
+    if (!blobUrl) {
+      return localUsersCache;
+    }
+
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
     const response = await fetch(blobUrl, {
-      headers: process.env.BLOB_READ_WRITE_TOKEN
-        ? { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+      headers: token && token !== "undefined" && token !== "null"
+        ? { Authorization: `Bearer ${token}` }
         : {},
     });
     if (!response.ok) {
-      return [];
+      console.warn(`Fetch users from Blob failed with status ${response.status}. Falling back to local cache.`);
+      return localUsersCache;
     }
     return (await response.json()) as User[];
   } catch (e) {
-    console.error("Failed to fetch users from Vercel Blob, using cache", e);
+    console.error("Failed to fetch users from Vercel Blob, falling back to local cache:", e);
     return localUsersCache;
   }
 }
@@ -64,10 +66,11 @@ export async function saveUsers(users: User[]): Promise<void> {
   try {
     fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(users, null, 2), "utf-8");
   } catch (e) {
-    console.error("Failed to write users to local file", e);
+    console.error("Failed to write users to local file:", e);
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token || token === "undefined" || token === "null" || token.trim() === "") {
     return;
   }
 
@@ -76,8 +79,9 @@ export async function saveUsers(users: User[]): Promise<void> {
       access: "private",
       addRandomSuffix: false,
       allowOverwrite: true,
+      token,
     });
   } catch (e) {
-    console.error("Failed to put users to Vercel Blob", e);
+    console.error("Failed to put users to Vercel Blob:", e);
   }
 }

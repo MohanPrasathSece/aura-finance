@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import gsap from "gsap";
 import { Logo } from "@/components/Logo";
+import { COUNTRIES, validatePhoneNumber, formatFullPhoneNumber, getCountry } from "../utils/phoneValidation";
+import { CountrySelect } from "@/components/CountrySelect";
 import {
   TrendingUp,
   LogOut,
@@ -299,67 +301,65 @@ function CapitalAllocationEngine() {
       <div className="relative flex-1 w-full my-4 flex items-center justify-center">
         {/* Core Engine Node */}
         <div 
-          className="absolute z-20 h-20 w-20 rounded-full bg-background border-2 border-white/10 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(0,198,255,0.2)] hover:scale-105 transition-all duration-300 group"
-          style={{ left: "calc(50% - 40px)", top: "calc(50% - 40px)" }}
+          className="absolute z-20 h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-background border-2 border-white/10 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(0,198,255,0.2)] hover:scale-105 transition-all duration-300 group left-[calc(50%-32px)] sm:left-[calc(50%-40px)] top-[calc(50%-32px)] sm:top-[calc(50%-40px)]"
         >
           <div className="absolute inset-0 rounded-full border border-dashed border-[#00C6FF]/40 animate-spin-slow" />
           <div className="absolute -inset-1.5 rounded-full border border-dashed border-[#14F195]/30 animate-spin-slower" />
-          <Logo className="h-8 w-8 animate-pulse-glow" />
-          <span className="text-[8px] uppercase tracking-widest text-[#00C6FF] font-bold mt-1">ZYVORA</span>
+          <Logo className="h-6 w-6 sm:h-8 sm:w-8 animate-pulse-glow" />
+          <span className="text-[6px] sm:text-[8px] uppercase tracking-widest text-[#00C6FF] font-bold mt-0.5 sm:mt-1">ZYVORA</span>
         </div>
 
         {/* Satellite Node: Staking Pool (Top-Left) */}
         <div 
-          className={`absolute left-2 top-2 z-10 glass rounded-2xl p-3 border transition-all duration-500 animate-float ${
+          className={`absolute left-1 top-1 sm:left-2 sm:top-2 z-10 glass rounded-xl sm:rounded-2xl p-2 sm:p-3 border transition-all duration-500 animate-float w-[105px] sm:w-[130px] ${
             activeNode === 0 ? "border-[#00C6FF] bg-[#00C6FF]/5 shadow-[0_0_20px_rgba(0,198,255,0.15)]" : "border-white/10"
           }`}
-          style={{ width: "130px" }}
         >
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-white/50">Staking Pool</span>
-            <span className="text-[9px] text-[#00C6FF] font-bold">14.2%</span>
+            <span className="text-[8px] sm:text-[10px] font-bold text-white/50">Staking Pool</span>
+            <span className="text-[7px] sm:text-[9px] text-[#00C6FF] font-bold">14.2%</span>
           </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mt-1.5">
+          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-1.5">
             <div className="h-full bg-[#00C6FF] transition-all duration-1000" style={{ width: activeNode === 0 ? "80%" : "30%" }} />
           </div>
         </div>
 
         {/* Satellite Node: Liquidity Yield (Bottom-Right) */}
         <div 
-          className={`absolute right-2 bottom-2 z-10 glass rounded-2xl p-3 border transition-all duration-500 animate-float-tilt ${
+          className={`absolute right-1 bottom-1 sm:right-2 sm:bottom-2 z-10 glass rounded-xl sm:rounded-2xl p-2 sm:p-3 border transition-all duration-500 animate-float-tilt w-[105px] sm:w-[130px] ${
             activeNode === 1 ? "border-[#14F195] bg-[#14F195]/5 shadow-[0_0_20px_rgba(20,241,149,0.15)]" : "border-white/10"
           }`}
-          style={{ width: "130px", animationDelay: "1s" }}
+          style={{ animationDelay: "1s" }}
         >
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-white/50">Liquidity LPs</span>
-            <span className="text-[9px] text-[#14F195] font-bold">24.8%</span>
+            <span className="text-[8px] sm:text-[10px] font-bold text-white/50">Liquidity LPs</span>
+            <span className="text-[7px] sm:text-[9px] text-[#14F195] font-bold">24.8%</span>
           </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mt-1.5">
+          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-1.5">
             <div className="h-full bg-[#14F195] transition-all duration-1000" style={{ width: activeNode === 1 ? "95%" : "40%" }} />
           </div>
         </div>
 
         {/* Satellite Node: Arbitrage Vault (Bottom-Left) */}
         <div 
-          className={`absolute left-2 bottom-2 z-10 glass rounded-2xl p-3 border transition-all duration-500 animate-float ${
+          className={`absolute left-1 bottom-1 sm:left-2 sm:bottom-2 z-10 glass rounded-xl sm:rounded-2xl p-2 sm:p-3 border transition-all duration-500 animate-float w-[105px] sm:w-[130px] ${
             activeNode === 2 ? "border-[#6A5CFF] bg-[#6A5CFF]/5 shadow-[0_0_20px_rgba(106,92,255,0.15)]" : "border-white/10"
           }`}
-          style={{ width: "130px", animationDelay: "2s" }}
+          style={{ animationDelay: "2s" }}
         >
           <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-white/50">Arbitrage Vault</span>
-            <span className="text-[9px] text-[#6A5CFF] font-bold">28.5%</span>
+            <span className="text-[8px] sm:text-[10px] font-bold text-white/50">Arbitrage Vault</span>
+            <span className="text-[7px] sm:text-[9px] text-[#6A5CFF] font-bold">28.5%</span>
           </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mt-1.5">
+          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-1.5">
             <div className="h-full bg-[#6A5CFF] transition-all duration-1000" style={{ width: activeNode === 2 ? "90%" : "25%" }} />
           </div>
         </div>
 
         {/* Dynamic status/metrics panel (Top-Right) */}
-        <div className="absolute right-2 top-2 z-10 glass rounded-2xl p-3 border border-white/10 text-right animate-float-tilt" style={{ width: "130px", animationDelay: "0.5s" }}>
-          <span className="text-[9px] uppercase tracking-widest text-white/40 block">Est. Yield Lock</span>
-          <span className="text-lg font-black text-gradient block mt-0.5">22.4% APY</span>
+        <div className="absolute right-1 top-1 sm:right-2 sm:top-2 z-10 glass rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-white/10 text-right animate-float-tilt w-[105px] sm:w-[130px]" style={{ animationDelay: "0.5s" }}>
+          <span className="text-[8px] sm:text-[9px] uppercase tracking-widest text-white/40 block">Est. Yield Lock</span>
+          <span className="text-xs sm:text-lg font-black text-gradient block mt-0.5">22.4% APY</span>
         </div>
 
         {/* Connection flow lines inside SVG */}
@@ -576,6 +576,7 @@ function ContactEnquiryLoggedIn({
     phone: initialPhone,
     message: "",
   });
+  const [selectedCountry, setSelectedCountry] = useState("CH");
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     name?: string;
@@ -584,14 +585,8 @@ function ContactEnquiryLoggedIn({
   }>({});
   const [status, setStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
-  const validatePhone = (val: string) => {
-    const cleanPhone = val.replace(/\s+/g, "");
-    if (!cleanPhone) return "Please enter a phone number";
-    const phoneRegex = /^(\+41|0041|41|0)?[1-9]\d{8}$/;
-    if (!phoneRegex.test(cleanPhone)) {
-      return "Please enter a valid phone number (e.g. 0791234567)";
-    }
-    return undefined;
+  const validatePhone = (val: string, countryCode: string = selectedCountry) => {
+    return validatePhoneNumber(val, countryCode);
   };
 
   const validateEmail = (val: string) => {
@@ -612,7 +607,7 @@ function ContactEnquiryLoggedIn({
 
     const nameErr = validateName(form.name);
     const emailErr = validateEmail(form.email);
-    const phoneErr = validatePhone(form.phone);
+    const phoneErr = validatePhone(form.phone, selectedCountry);
 
     if (nameErr || emailErr || phoneErr) {
       setValidationErrors({ name: nameErr, email: emailErr, phone: phoneErr });
@@ -622,10 +617,11 @@ function ContactEnquiryLoggedIn({
     setLoading(true);
 
     try {
+      const fullPhone = formatFullPhoneNumber(form.phone, selectedCountry);
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, phone: fullPhone, countryCode: selectedCountry }),
       });
       const data = await response.json();
       setLoading(false);
@@ -650,7 +646,7 @@ function ContactEnquiryLoggedIn({
   };
 
   return (
-    <div className="glass-strong noise rounded-3xl p-8 border border-white/10 relative">
+    <div className="glass-strong noise rounded-3xl p-5 sm:p-8 border border-white/10 relative">
       <form onSubmit={handleSubmit} className="space-y-6 text-left">
         <div className="grid md:grid-cols-2 gap-6">
           <div>
@@ -698,15 +694,23 @@ function ContactEnquiryLoggedIn({
           <label className="mb-2 block text-sm uppercase tracking-wider text-white/50 font-bold">
             Phone Number
           </label>
-          <div className="relative">
+          <div className="flex gap-2">
+            <CountrySelect
+              value={selectedCountry}
+              onChange={(newCountry) => {
+                setSelectedCountry(newCountry);
+                setValidationErrors((prev) => ({ ...prev, phone: validatePhone(form.phone, newCountry) }));
+              }}
+            />
             <input
               type="text"
               value={form.phone}
               onChange={(e) => {
                 setForm({ ...form, phone: e.target.value });
-                setValidationErrors((prev) => ({ ...prev, phone: validatePhone(e.target.value) }));
+                setValidationErrors((prev) => ({ ...prev, phone: validatePhone(e.target.value, selectedCountry) }));
               }}
-              className={`w-full rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white text-base`}
+              placeholder={getCountry(selectedCountry).placeholder}
+              className={`flex-1 rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white text-base`}
             />
           </div>
           {validationErrors.phone && (

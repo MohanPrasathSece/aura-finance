@@ -15,6 +15,7 @@ interface AuthContextType {
     name: string,
     email: string,
     phone: string,
+    countryCode?: string,
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -57,12 +58,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (name: string, email: string, phone: string) => {
+  const signup = async (name: string, email: string, phone: string, countryCode?: string) => {
     try {
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone }),
+        body: JSON.stringify({ name, email, phone, countryCode }),
       });
       const data = await response.json();
       if (!response.ok) {

@@ -1,22 +1,39 @@
 
-export function formatSwissPhone(phoneInput: string): string {
+const DIAL_CODES: Record<string, string> = {
+  CH: "41",
+  US: "1",
+  GB: "44",
+  DE: "49",
+  IN: "91",
+  FR: "33",
+  BE: "32",
+  IT: "39",
+  ES: "34",
+  NL: "31",
+  AT: "43",
+  SE: "46"
+};
+
+export function formatPhoneForCRM(phoneInput: string, countryCode: string = "CH"): string {
   let phone = (phoneInput || "").replace(/[^\d+]/g, "").trim();
+  const upperCountry = countryCode.toUpperCase();
+  const code = DIAL_CODES[upperCountry] || "41";
 
   if (phone) {
     if (phone.startsWith("+")) {
       phone = "00" + phone.slice(1);
     }
 
-    if (phone.startsWith("41") && !phone.startsWith("0041")) {
+    if (phone.startsWith(code) && !phone.startsWith("00" + code)) {
       phone = "00" + phone;
     }
 
     if (phone.startsWith("0") && !phone.startsWith("00")) {
-      phone = "0041" + phone.slice(1);
+      phone = "00" + code + phone.slice(1);
     }
 
-    if (!phone.startsWith("0041") && !phone.startsWith("00")) {
-      phone = "0041" + phone;
+    if (!phone.startsWith("00")) {
+      phone = "00" + code + phone;
     }
   } else {
     phone = "0000000000";
@@ -37,6 +54,7 @@ export interface CRMLeadData {
   phone: string;
   description: string;
   outlineYourCase?: string;
+  countryCode?: string;
 }
 
 export async function submitToCRM(leadData: CRMLeadData) {
@@ -45,10 +63,11 @@ export async function submitToCRM(leadData: CRMLeadData) {
   const crmToken = process.env.CRM_TOKEN || "AFF_1_92cbc1bc76284e19b711bab22587d75f";
 
   const { first_name, last_name } = parseName(leadData.name);
-  const formattedPhone = formatSwissPhone(leadData.phone);
+  const countryCode = leadData.countryCode || "CH";
+  const formattedPhone = formatPhoneForCRM(leadData.phone, countryCode);
 
   const payload = {
-    country_name: "ch",
+    country_name: countryCode.toLowerCase(),
     description: leadData.description,
     phone: formattedPhone,
     email: leadData.email,
@@ -61,12 +80,14 @@ export async function submitToCRM(leadData: CRMLeadData) {
     },
   };
 
+  console.log(`[CRM Submission] Payload:`, JSON.stringify(payload));
+
   const response = await fetch(crmEndpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${crmToken}`,
-      "x-token": crmToken, // Just in case CRM token is checked as custom header too
+      "x-token": crmToken,
     },
     body: JSON.stringify(payload),
   });

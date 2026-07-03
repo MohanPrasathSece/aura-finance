@@ -6,6 +6,8 @@ import { useAuth } from "../context/AuthContext";
 import { AuthModals } from "../components/AuthModals";
 import { Logo } from "@/components/Logo";
 import Globe from "@/components/ui/globe";
+import { COUNTRIES, validatePhoneNumber, formatFullPhoneNumber, getCountry } from "../utils/phoneValidation";
+import { CountrySelect } from "@/components/CountrySelect";
 import { Coins, ShieldCheck, BrainCircuit } from "lucide-react";
 
 export default function Home() {
@@ -83,10 +85,10 @@ interface NavProps {
 
 function Nav({ onLaunchApp, isLoggedIn }: NavProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4">
-      <div className="mx-auto mt-4 flex max-w-7xl items-center justify-between rounded-full glass px-6 py-3">
-        <Link to="/" className="flex items-center gap-2">
-          <Logo className="h-8 w-8" />
+    <header className="fixed top-0 left-0 right-0 z-50 px-2 sm:px-4">
+      <div className="mx-auto mt-2 sm:mt-4 flex max-w-7xl items-center justify-between rounded-full glass px-4 sm:px-6 py-2 sm:py-3">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <Logo className="h-6 w-6 sm:h-8 sm:w-8" />
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/70">
           <a href="#services" className="hover:text-white transition">
@@ -104,7 +106,7 @@ function Nav({ onLaunchApp, isLoggedIn }: NavProps) {
         </div>
         <button
           onClick={onLaunchApp}
-          className="shine-btn rounded-full bg-gradient-brand px-5 py-2 text-sm font-semibold text-[#03040A] cursor-pointer"
+          className="shine-btn rounded-full bg-gradient-brand px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-[#03040A] cursor-pointer shrink-0"
         >
           {isLoggedIn ? "Open Platform" : "Launch Platform"}
         </button>
@@ -188,41 +190,40 @@ function Hero({ onLaunchApp, onLaunchPortfolio, isLoggedIn }: HeroProps) {
     ));
 
   return (
-    <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden pt-24 flex items-center justify-center">
-      <div className="relative z-10 mx-auto max-w-5xl px-6 pt-16 pb-28 text-center flex flex-col items-center justify-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold tracking-wider text-white/80 transition-all hover:border-white/20 hover:bg-white/10">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#14F195] animate-pulse" />
-          Start Investing. Start Earning. &middot; v4.2 &rsaquo;
+    <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden pt-20 flex items-center justify-center">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-24 text-center flex flex-col items-center justify-center">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold tracking-wider text-white/80 transition-all hover:border-white/20 hover:bg-white/10 max-w-[90%] text-center">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#14F195] animate-pulse shrink-0" />
+          <span className="truncate">Start Investing. Start Earning. &middot; v4.2 &rsaquo;</span>
         </div>
         
         <h1
           ref={headingRef}
-          className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.95] text-white max-w-4xl"
+          className="font-display text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.0] text-white max-w-4xl"
         >
-          <div className="overflow-hidden py-5 -my-5 px-3">{renderLetters("Zyvora Finance")}</div>
-          <div className="overflow-hidden py-5 -my-5 px-3">
-            <span ref={gradientTextRef} className="text-gradient inline-block will-change-transform py-4 -my-4">Multiply your yield</span>
+          <div className="overflow-hidden py-3 -my-3 px-3">{renderLetters("Zyvora Finance")}</div>
+          <div className="overflow-hidden py-3 -my-3 px-3">
+            <span ref={gradientTextRef} className="text-gradient inline-block will-change-transform py-2 -my-2 leading-tight">Multiply your yield</span>
           </div>
         </h1>
 
         <p
           ref={subRef}
-          className="mt-8 max-w-xl text-white/70 leading-relaxed mx-auto"
-          style={{ fontSize: "1.15rem" }}
+          className="mt-6 max-w-xl text-white/70 leading-relaxed mx-auto text-sm sm:text-base md:text-lg"
         >
           Redefining wealth creation. Invest in high-performance digital portfolios, deploy intelligent trading bots, and let our secure algorithms maximize your passive income.
         </p>
 
-        <div className="mt-10 flex flex-wrap justify-center items-center gap-4">
+        <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 w-full sm:w-auto px-4">
           <button
             onClick={onLaunchPortfolio}
-            className="shine-btn rounded-full bg-gradient-brand px-8 py-4 text-base font-semibold text-[#03040A] shadow-[0_0_40px_rgba(0,198,255,0.35)] hover:shadow-[0_0_60px_rgba(106,92,255,0.5)] transition-shadow cursor-pointer"
+            className="w-full sm:w-auto text-center shine-btn rounded-full bg-gradient-brand px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-semibold text-[#03040A] shadow-[0_0_40px_rgba(0,198,255,0.35)] hover:shadow-[0_0_60px_rgba(106,92,255,0.5)] transition-shadow cursor-pointer"
           >
             {isLoggedIn ? "Open Portfolio →" : "Launch Portfolio →"}
           </button>
           <button
             onClick={onLaunchApp}
-            className="glass rounded-full px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition cursor-pointer"
+            className="w-full sm:w-auto text-center glass rounded-full px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-semibold text-white hover:bg-white/10 transition cursor-pointer"
           >
             ▶ Watch Platform
           </button>
@@ -660,6 +661,7 @@ function Experience() {
 /* ---------------- CONTACT ---------------- */
 function ContactHome() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [selectedCountry, setSelectedCountry] = useState("CH");
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<{
     name?: string;
@@ -668,14 +670,8 @@ function ContactHome() {
   }>({});
   const [status, setStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
 
-  const validatePhone = (val: string) => {
-    const cleanPhone = val.replace(/\s+/g, "");
-    if (!cleanPhone) return "Please enter a phone number";
-    const phoneRegex = /^(\+41|0041|41|0)?[1-9]\d{8}$/;
-    if (!phoneRegex.test(cleanPhone)) {
-      return "Please enter a valid phone number (e.g. 0791234567)";
-    }
-    return undefined;
+  const validatePhone = (val: string, countryCode: string = selectedCountry) => {
+    return validatePhoneNumber(val, countryCode);
   };
 
   const validateEmail = (val: string) => {
@@ -696,7 +692,7 @@ function ContactHome() {
 
     const nameErr = validateName(form.name);
     const emailErr = validateEmail(form.email);
-    const phoneErr = validatePhone(form.phone);
+    const phoneErr = validatePhone(form.phone, selectedCountry);
 
     if (nameErr || emailErr || phoneErr) {
       setValidationErrors({ name: nameErr, email: emailErr, phone: phoneErr });
@@ -706,10 +702,11 @@ function ContactHome() {
     setLoading(true);
 
     try {
+      const fullPhone = formatFullPhoneNumber(form.phone, selectedCountry);
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, phone: fullPhone, countryCode: selectedCountry }),
       });
       const data = await response.json();
       setLoading(false);
@@ -769,8 +766,8 @@ function ContactHome() {
   }, [contactAnimated]);
 
   return (
-    <section ref={contactContainerRef} id="contact" className="relative py-32">
-      <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 items-center">
+    <section ref={contactContainerRef} id="contact" className="relative py-24 sm:py-32">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 items-center">
         <div className="contact-left text-left">
           <div className="mb-4 inline-flex rounded-full glass px-3 py-1 text-xs text-white/70">
             05 · Access
@@ -780,12 +777,12 @@ function ContactHome() {
             <br />
             your <span className="text-gradient">crypto empire?</span>
           </h2>
-          <p className="mt-6 max-w-md text-white/60">
+          <p className="mt-6 max-w-md text-white/60 text-sm sm:text-base">
             Zyvora Finance offers custom staking vaults, automated trading grid setups, and tailored yield locks built to multiply your crypto income. Request access to start growing your wealth today.
           </p>
         </div>
         <form
-          className="contact-right glass-strong gradient-border noise relative rounded-3xl p-8 space-y-4 text-left"
+          className="contact-right glass-strong gradient-border noise relative rounded-3xl p-5 sm:p-8 space-y-4 text-left w-full"
           onSubmit={handleSubmit}
         >
           <div>
@@ -830,16 +827,25 @@ function ContactHome() {
             <label className="mb-1 block text-xs uppercase tracking-widest text-white/50">
               Phone Number
             </label>
-            <input
-              type="text"
-              placeholder="079 123 45 67"
-              value={form.phone}
-              onChange={(e) => {
-                setForm({ ...form, phone: e.target.value });
-                setValidationErrors((prev) => ({ ...prev, phone: validatePhone(e.target.value) }));
-              }}
-              className={`w-full rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white`}
-            />
+            <div className="flex gap-2">
+              <CountrySelect
+                value={selectedCountry}
+                onChange={(newCountry) => {
+                  setSelectedCountry(newCountry);
+                  setValidationErrors((prev) => ({ ...prev, phone: validatePhone(form.phone, newCountry) }));
+                }}
+              />
+              <input
+                type="text"
+                placeholder={getCountry(selectedCountry).placeholder}
+                value={form.phone}
+                onChange={(e) => {
+                  setForm({ ...form, phone: e.target.value });
+                  setValidationErrors((prev) => ({ ...prev, phone: validatePhone(e.target.value, selectedCountry) }));
+                }}
+                className={`flex-1 rounded-xl bg-white/5 border ${validationErrors.phone ? "border-destructive" : "border-white/10"} px-4 py-3 outline-none focus:border-[#00C6FF] transition text-white`}
+              />
+            </div>
             {validationErrors.phone && (
               <p className="text-xs text-destructive mt-1">{validationErrors.phone}</p>
             )}
