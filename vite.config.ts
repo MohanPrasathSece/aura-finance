@@ -76,6 +76,8 @@ export default defineConfig({
     },
   ],
   resolve: {
+    // Vite will try these extensions in order — so ../api-lib/blobDb.js resolves to blobDb.ts locally
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
       // Allow local dev to resolve ../api-lib imports from within api/ files
