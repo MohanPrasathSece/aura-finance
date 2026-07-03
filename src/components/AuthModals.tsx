@@ -26,6 +26,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [alreadyExists, setAlreadyExists] = useState(false);
 
   // Real-time validation states
   const [validationErrors, setValidationErrors] = useState<{
@@ -40,6 +41,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     setView(initialView);
     setError(null);
     setSuccess(null);
+    setAlreadyExists(false);
     setEmail("");
     setName("");
     setValidationErrors({});
@@ -151,6 +153,7 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
     }
 
     setLoading(true);
+    setAlreadyExists(false);
     const res = await signup(name, email, "", "");
     setLoading(false);
 
@@ -160,6 +163,8 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
         handleClose();
         if (onSuccess) onSuccess();
       }, 1200);
+    } else if (res.code === "ALREADY_EXISTS") {
+      setAlreadyExists(true);
     } else {
       setError(res.error || "Signup failed. Please try again.");
     }
@@ -311,6 +316,28 @@ export const AuthModals: React.FC<AuthModalsProps> = ({
               </div>
 
 
+
+              {/* Already exists banner */}
+              {alreadyExists && (
+                <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm leading-relaxed">
+                  <p className="font-semibold text-amber-300 mb-1">⚠️ Account already exists</p>
+                  <p className="text-amber-200/80">
+                    An account with <span className="font-mono text-amber-300">{email}</span> already exists.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAlreadyExists(false);
+                      setError(null);
+                      setValidationErrors({});
+                      setView("login");
+                    }}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/30 px-3 py-1.5 text-xs font-bold text-amber-300 transition"
+                  >
+                    → Sign In instead
+                  </button>
+                </div>
+              )}
 
               {error && (
                 <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive leading-relaxed">

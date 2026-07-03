@@ -98,8 +98,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     };
 
     if (existingIndex >= 0) {
-      console.log(`[API Signup] User exists — updating: "${email}"`);
-      users[existingIndex] = updatedUser;
+      console.log(`[API Signup] Account already exists for: "${email}"`);
+      res.statusCode = 409;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({ error: "An account with this email already exists. Please sign in instead.", code: "ALREADY_EXISTS" }));
+      return;
     } else {
       console.log(`[API Signup] New user — registering: "${email}"`);
       users.push(updatedUser);

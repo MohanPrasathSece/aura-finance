@@ -10,13 +10,13 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string) => Promise<{ success: boolean; error?: string; code?: string }>;
   signup: (
     name: string,
     email: string,
     phone: string,
     countryCode?: string,
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; code?: string }>;
   logout: () => void;
 }
 
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       const data = await response.json();
       if (!response.ok) {
-        return { success: false, error: data.error || "Login failed" };
+        return { success: false, error: data.error || "Login failed", code: data.code };
       }
       setUser(data.user);
       localStorage.setItem("zyvora_user", JSON.stringify(data.user));
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       const data = await response.json();
       if (!response.ok) {
-        return { success: false, error: data.error || "Signup failed" };
+        return { success: false, error: data.error || "Signup failed", code: data.code };
       }
       setUser(data.user);
       localStorage.setItem("zyvora_user", JSON.stringify(data.user));
