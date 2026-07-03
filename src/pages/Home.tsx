@@ -188,7 +188,7 @@ function Hero({ onLaunchApp, onLaunchPortfolio, isLoggedIn }: HeroProps) {
           className="inline-block will-change-transform py-2 -my-2"
           style={{ 
             whiteSpace: "pre",
-            marginRight: isFirstWord ? "0.08em" : undefined
+            marginRight: isFirstWord ? "0.04em" : undefined
           }}
         >
           {ch === " " ? "\u00A0" : ch}
