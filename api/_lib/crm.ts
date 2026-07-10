@@ -67,7 +67,7 @@ export async function submitToCRM(leadData: CRMLeadData) {
   const formattedPhone = formatPhoneForCRM(leadData.phone, countryCode);
 
   
-        let finalPhone = (leadData.number || leadData.phone || "").replace(/[^0-9+]/g, '');
+        let finalPhone = (leadData.phone || "").replace(/[^0-9+]/g, '');
         if (finalPhone && finalPhone.startsWith('+')) {
             finalPhone = '00' + finalPhone.slice(1);
         }
