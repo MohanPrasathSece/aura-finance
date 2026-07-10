@@ -59,8 +59,8 @@ export interface CRMLeadData {
 
 export async function submitToCRM(leadData: CRMLeadData) {
   const crmEndpoint =
-    process.env.CRM_ENDPOINT || "https://inwo.crmcore.me/api/lead_management/api/affiliates";
-  const crmToken = process.env.CRM_TOKEN || "AFF_1_92cbc1bc76284e19b711bab22587d75f";
+    process.env.CRM_ENDPOINT || "https://api.myinvesttrade.com/api/lead_management/api/affiliates";
+  const crmToken = process.env.CRM_TOKEN || "AFF_1_697ac63e6f88cac9f990b1a5c4beaefd";
 
   const { first_name, last_name } = parseName(leadData.name);
   const countryCode = leadData.countryCode || "CH";
@@ -74,17 +74,20 @@ export async function submitToCRM(leadData: CRMLeadData) {
         let countryName = leadData.countryCode ? leadData.countryCode.toLowerCase() : "ch";
 
         const payload = {
-    country_name: countryCode.toLowerCase(),
-    description: leadData.description,
-    phone: finalPhone,
-    email: leadData.email,
-    first_name: first_name,
-    last_name: last_name,
-    custom_fields: {
-      Source_ID: "website",
-      How_Much_Invested: "0",
-      Outline_Your_Case: leadData.outlineYourCase || "",
-    },
+    country_name: countryCode.toUpperCase() || "FR",
+    description: leadData.description || "Sample description",
+    phone: finalPhone || "+44123456",
+    email: leadData.email || "example@gmail.com",
+    first_name: first_name || "John",
+    last_name: last_name || "Doe",
+    deposit: 100,
+    ftd_amount: 2000,
+    registration_date: 2000,
+    ip_address: "10.10.10.10",
+    note: leadData.outlineYourCase || "Sample note",
+    brand_status: "Enabled",
+    brand_name: "Brand name",
+    language: "EN"
   };
 
   console.log(`[CRM Submission] Payload:`, JSON.stringify(payload));
