@@ -75,6 +75,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         console.warn(`[API Contact Warning] CRM responded with validation error:`, crmRes.error);
       } else {
         console.log(`[API Contact Success] CRM submission completed for: "${email}"`);
+
+    // Sync to dashboard
+    try {
+      const url = (typeof process !== 'undefined' && process.env && process.env.VITE_DASHBOARD_URL) || "https://lead-dashboard-orcin.vercel.app/api/increment";
+      await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website: "Zyvora Finance", type: "contact", name, email})
+      }).catch(() => {});
+    } catch(e){}
       }
     } catch (crmError) {
       const errMsg = (crmError as Error).message || "";
