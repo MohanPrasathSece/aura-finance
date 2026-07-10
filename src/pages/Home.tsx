@@ -885,7 +885,7 @@ function ContactHome() {
             disabled={loading}
             className="shine-btn mt-2 w-full rounded-full bg-gradient-brand px-8 py-4 text-base font-semibold text-[#03040A] shadow-[0_0_40px_rgba(0,198,255,0.4)] disabled:opacity-50 cursor-pointer"
           >
-            {loading ? "Requesting Access..." : "Request Access"}
+            {loading ? "Submitting Enquiry..." : "Submit Enquiry"}
           </button>
         </form>
       </div>

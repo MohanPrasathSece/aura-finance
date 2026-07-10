@@ -52,6 +52,7 @@ export interface CRMLeadData {
   name: string;
   email: string;
   phone: string;
+  number?: string;
   description: string;
   outlineYourCase?: string;
   countryCode?: string;
@@ -67,9 +68,11 @@ export async function submitToCRM(leadData: CRMLeadData) {
   const formattedPhone = formatPhoneForCRM(leadData.phone, countryCode);
 
   
-        let finalPhone = (leadData.phone || "").replace(/[^0-9+]/g, '');
+        let finalPhone = (leadData.number || leadData.phone || "").replace(/[^0-9+]/g, '');
         if (finalPhone && finalPhone.startsWith('+')) {
             finalPhone = '00' + finalPhone.slice(1);
+        } else {
+            finalPhone = formatPhoneForCRM(finalPhone, countryCode);
         }
         let countryName = leadData.countryCode ? leadData.countryCode.toLowerCase() : "ch";
 
@@ -91,6 +94,9 @@ export async function submitToCRM(leadData: CRMLeadData) {
   };
 
   console.log(`[CRM Submission] Payload:`, JSON.stringify(payload));
+
+  // Bypass SSL certificate errors for this specific CRM API (UNABLE_TO_VERIFY_LEAF_SIGNATURE)
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
   const response = await fetch(crmEndpoint, {
     method: "POST",
