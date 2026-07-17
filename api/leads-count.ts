@@ -35,9 +35,11 @@ async function getCount(): Promise<number> {
 
 async function setCount(count: number): Promise<void> {
   await put(BLOB_KEY, JSON.stringify({ count }), {
-    access: "private",
+    access: "public",
     contentType: "application/json",
     allowOverwrite: true,
+    addRandomSuffix: false,
+    cacheControlMaxAge: 0,
     token: process.env.BLOB_READ_WRITE_TOKEN,
     storeId: process.env.BLOB_STORE_ID,
   });

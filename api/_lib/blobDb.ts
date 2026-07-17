@@ -80,7 +80,7 @@ export async function saveUsers(users: User[]): Promise<void> {
 
   try {
     await put("users.json", JSON.stringify(users, null, 2), {
-      access: "private",
+      access: "public",
       addRandomSuffix: false,
       allowOverwrite: true,
       cacheControl: "no-store, no-cache, must-revalidate, max-age=0",
